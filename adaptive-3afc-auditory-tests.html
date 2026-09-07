@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adaptive 3AFC auditory tests</title>
+  <style>
+    :root { --ink:#14213d; --muted:#5d667a; --paper:#f7f8fc; --panel:#ffffff; --line:#dce1ec; --blue:#2456c7; --violet:#7152c9; --green:#16875a; --red:#bb3450; --amber:#b96800; }
+    * { box-sizing:border-box; }
+    body { margin:0; font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--ink); background:var(--paper); }
+    main { max-width:1000px; margin:auto; padding:34px 20px 64px; }
+    h1 { font-size:clamp(1.75rem,4vw,2.6rem); margin:0 0 8px; letter-spacing:-.03em; }
+    h2 { font-size:1.25rem; margin:0 0 10px; }
+    h3 { font-size:1rem; margin:0; }
+    p { margin:8px 0; }
+    .lead { max-width:760px; color:var(--muted); font-size:1.08rem; }
+    .notice { margin:24px 0; padding:13px 16px; border-left:4px solid var(--amber); background:#fff7e8; color:#59400c; }
+    .tabs { display:flex; gap:8px; margin:28px 0 16px; flex-wrap:wrap; }
+    button { border:1px solid var(--line); border-radius:9px; background:white; color:var(--ink); padding:10px 14px; font:inherit; font-weight:650; cursor:pointer; }
+    button:hover:not(:disabled) { border-color:var(--blue); }
+    button:focus-visible { outline:3px solid #9fbcff; outline-offset:2px; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .tab.active, .primary { background:var(--blue); color:white; border-color:var(--blue); }
+    .test { display:none; }
+    .test.active { display:block; }
+    .grid { display:grid; grid-template-columns:1.25fr .75fr; gap:16px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px; }
+    .controls { display:flex; flex-wrap:wrap; gap:18px; align-items:end; margin:16px 0; }
+    label { display:grid; gap:5px; font-size:.88rem; font-weight:650; }
+    select, input { min-height:42px; border:1px solid var(--line); border-radius:7px; padding:7px 10px; font:inherit; color:var(--ink); background:#fff; }
+    .status { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px; }
+    .metric { background:#f3f6fd; padding:10px 12px; border-radius:9px; }
+    .metric span { display:block; color:var(--muted); font-size:.78rem; }
+    .metric strong { font-variant-numeric:tabular-nums; font-size:1.15rem; }
+    .instruction { min-height:24px; color:var(--muted); margin:15px 0 12px; }
+    .choices { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .choice { min-height:70px; font-size:1.05rem; }
+    .choice.selected { background:#e9f0ff; border-color:var(--blue); color:var(--blue); }
+    .feedback { min-height:25px; margin:14px 0 0; font-weight:650; }
+    .feedback.correct { color:var(--green); } .feedback.incorrect { color:var(--red); }
+    .small { color:var(--muted); font-size:.88rem; }
+    .legend { display:flex; gap:14px; flex-wrap:wrap; color:var(--muted); font-size:.85rem; }
+    .dot { display:inline-block; width:9px; height:9px; border-radius:99px; margin-right:5px; } .dot.correct { background:var(--green); } .dot.incorrect { background:var(--red); } .dot.reversal { background:var(--violet); }
+    .result { margin-top:16px; } .result[hidden] { display:none; }
+    .threshold { font-size:1.6rem; color:var(--blue); margin:4px 0 12px; font-weight:750; }
+    svg { width:100%; height:auto; display:block; overflow:visible; margin-top:10px; }
+    .axis { stroke:#aab3c6; stroke-width:1; } .path { fill:none; stroke:var(--blue); stroke-width:2.5; } .point.correct { fill:var(--green); } .point.incorrect { fill:var(--red); } .reversal-ring { fill:white; stroke:var(--violet); stroke-width:2.5; }
+    .svg-label { fill:var(--muted); font-size:11px; } .svg-title { fill:var(--ink); font-size:12px; font-weight:650; }
+    .about { margin-top:28px; } .about li { margin:8px 0; }
+    .refs { color:var(--muted); font-size:.9rem; } a { color:var(--blue); }
+    @media (max-width:700px) { .grid { grid-template-columns:1fr; } .status { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Adaptive 3AFC auditory tests</h1>
+  <p class="lead">Measure a just-detectable difference with three alternatives per trial: two identical references and one subtly different target. Complete each test independently; the procedure ends at six reversals.</p>
+  <div class="notice"><strong>Listening safety:</strong> run each test in a quiet environment and start with a low computer volume. Do not use uncomfortable or potentially harmful sound levels; stop immediately if any sound is uncomfortable. This educational tool is not a clinical hearing assessment.</div>
+  <nav class="tabs" aria-label="Test selection">
+    <button class="tab active" data-test="pitch">Pitch difference</button>
+    <button class="tab" data-test="gap">Silent gap</button>
+    <button class="tab" data-test="amplitude">Amplitude difference</button>
+  </nav>
+  <section id="pitch" class="test active" data-kind="pitch"></section>
+  <section id="gap" class="test" data-kind="gap"></section>
+  <section id="amplitude" class="test" data-kind="amplitude"></section>
+  <section class="card about">
+    <h2>Why this matters beyond the lab</h2>
+    <ul>
+      <li><strong>Auditory icons and notifications:</strong> a pitch difference must clear the listener’s discrimination threshold to make app events distinct without becoming intrusive.</li>
+      <li><strong>Alarms:</strong> reliably distinguishable pitch patterns can communicate urgency, source, or action while reducing confusable alerts.</li>
+      <li><strong>Music perception:</strong> pitch discrimination supports melody, tuning, harmony, intonation, and recognition of an instrument or voice.</li>
+      <li><strong>Human–machine communication:</strong> calibrated differences help machines convey state, progress, and errors through sound when vision is busy or unavailable.</li>
+      <li><strong>Volume control and accessibility:</strong> amplitude discrimination informs usable volume increments and helps ensure speech, media, and alerts remain distinguishable for listeners with different hearing needs.</li>
+      <li><strong>Warnings and workplace sound:</strong> audibly distinct levels can separate routine cues from urgent warnings, while careful calibration avoids masking, distraction, and unsafe exposure.</li>
+    </ul>
+    <p class="refs">Procedure notes: adaptive staircases place observations near threshold and use shrinking step sizes; forced-choice tasks have a chance baseline determined by their number of alternatives. See <a href="https://engineering.purdue.edu/~ece511/LectureNotes/pp12.pdf" target="_blank" rel="noopener">Purdue adaptive-methods notes</a>, <a href="https://www.pnas.org/doi/pdf/10.1073/pnas.081082598" target="_blank" rel="noopener">2-down/1-up background</a>, and <a href="https://bdml.stanford.edu/twiki/pub/Haptics/DetectionThreshold/psychoacoustics.pdf" target="_blank" rel="noopener">Levitt’s transformed up-down methods</a>.</p>
+  </section>
+</main>
+<script>
+(() => {
+  const specs = {
+    pitch: { name:'Pitch difference', unit:'Hz', initial:12, min:.25, max:80, steps:[6,3,1.5,.75,.375], description:'Reference tones are fixed at the selected pitch. The target is higher by the displayed difference; every tone lasts 2.0 seconds at the same amplitude.', control:'pitch' },
+    gap: { name:'Silent-gap detection', unit:'ms', initial:80, min:2, max:500, steps:[40,20,10,5,2.5], description:'Reference tones are continuous for 2.0 seconds. The target has a silent interruption while total duration and amplitude remain matched.', control:null },
+    amplitude: { name:'Amplitude difference', unit:'dB', initial:12, min:.25, max:40, steps:[6,3,1.5,.75,.375], description:'Reference tones use one fixed, moderate output amplitude at 440 Hz for 2.0 seconds. The target is softer by the displayed dB amount; pitch and duration remain exactly matched. Run this test in a quiet setting at a comfortable volume.', control:null }
+  };
+  let audio;
+  const makeState = kind => ({ kind, trial:0, diff:specs[kind].initial, target:0, streak:0, lastDirection:null, reversals:[], records:[], running:false, playing:false, done:false, refHz:440 });
+  const states = Object.fromEntries(Object.keys(specs).map(k => [k,makeState(k)]));
+  const $ = (q, root=document) => root.querySelector(q);
+  const fmt = n => n < 1 ? n.toFixed(2) : n < 10 ? n.toFixed(1) : Math.round(n).toString();
+  function render(kind) {
+    const s=states[kind], spec=specs[kind], host=document.getElementById(kind);
+    const control = kind==='pitch' ? `<label>Reference pitch<select id="ref-pitch"><option value="440" ${s.refHz===440?'selected':''}>440 Hz (A4)</option><option value="1000" ${s.refHz===1000?'selected':''}>1000 Hz</option></select></label>` : '';
+    host.innerHTML = `<div class="grid"><div class="card"><h2>${spec.name}</h2><p class="small">${spec.description}</p><div class="controls">${control}<button class="primary" id="play" ${s.playing||s.done?'disabled':''}>${s.running?'Play next trial':'Start test'}</button><button id="restart">Restart</button></div><div class="status"><div class="metric"><span>Trial</span><strong>${s.trial || '—'}</strong></div><div class="metric"><span>Current difference</span><strong>${fmt(s.diff)} ${spec.unit}</strong></div><div class="metric"><span>Reversals</span><strong>${s.reversals.length} / 6</strong></div></div><p class="instruction" id="instruction">${s.done?'Test complete.':s.running?'Press “Play next trial,” listen to all three options, then choose the odd one.':'Choose a comfortable volume, then start. Each trial plays three two-second options.'}</p><div class="choices" aria-label="Choose the different option"><button class="choice" data-choice="0" disabled>Option 1</button><button class="choice" data-choice="1" disabled>Option 2</button><button class="choice" data-choice="2" disabled>Option 3</button></div><p class="feedback" aria-live="polite"></p></div><aside class="card"><h3>Adaptive rule</h3><p class="small">Two correct choices in a row make the difference smaller. One incorrect choice makes it larger. The step size halves after reversals 2 and 4 (and is reduced again thereafter).</p><div class="legend"><span><i class="dot correct"></i>correct</span><span><i class="dot incorrect"></i>incorrect</span><span><i class="dot reversal"></i>reversal</span></div></aside></div><div class="card result" ${s.done?'':'hidden'} id="result"></div>`;
+    $('#play',host).addEventListener('click',()=>playTrial(kind)); $('#restart',host).addEventListener('click',()=>{states[kind]=makeState(kind); render(kind);});
+    if(kind==='pitch') $('#ref-pitch',host).addEventListener('change', e=>{s.refHz=+e.target.value;});
+    host.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>answer(kind,+b.dataset.choice)));
+    if(s.done) renderResult(kind);
+  }
+  function getAudio(){ if(!audio) audio=new (window.AudioContext||window.webkitAudioContext)(); return audio; }
+  function scheduleTone(ctx, start, duration, freq, amp, gapMs=0) {
+    const osc=ctx.createOscillator(), gain=ctx.createGain(); osc.type='sine'; osc.frequency.value=freq; osc.connect(gain).connect(ctx.destination);
+    const edge=.012, end=start+duration, gap=gapMs/1000;
+    gain.gain.setValueAtTime(0,start); gain.gain.linearRampToValueAtTime(amp,start+edge);
+    if(gap>0){ const gs=start+(duration-gap)/2, ge=gs+gap; gain.gain.setValueAtTime(amp,gs-edge); gain.gain.linearRampToValueAtTime(0,gs); gain.gain.setValueAtTime(0,ge); gain.gain.linearRampToValueAtTime(amp,ge+edge); }
+    gain.gain.setValueAtTime(amp,end-edge); gain.gain.linearRampToValueAtTime(0,end); osc.start(start); osc.stop(end+.03);
+  }
+  async function playTrial(kind) {
+    const s=states[kind], spec=specs[kind]; if(s.playing||s.done) return; if(!s.running){s.running=true;} s.playing=true; s.target=Math.floor(Math.random()*3); s.trial++; render(kind); const host=document.getElementById(kind); const ins=$('#instruction',host); ins.textContent='Playing Option 1, Option 2, and Option 3 in sequence…';
+    const ctx=getAudio(); await ctx.resume(); const start=ctx.currentTime+.12, slot=2.38;
+    for(let i=0;i<3;i++){ const target=i===s.target; const freq=kind==='pitch'&&target?s.refHz+s.diff:s.refHz; const amp=(kind==='amplitude'&&target) ? .12*Math.pow(10,-s.diff/20) : .12; const gap=kind==='gap'&&target?s.diff:0; scheduleTone(ctx,start+i*slot,2,freq,amp,gap); }
+    window.setTimeout(()=>{ s.playing=false; render(kind); $('#instruction',document.getElementById(kind)).textContent='Which option was different?'; document.querySelectorAll(`#${kind} .choice`).forEach(b=>b.disabled=false); }, 3*slot*1000+100);
+  }
+  function answer(kind, choice) {
+    const s=states[kind], spec=specs[kind]; if(!s.running||s.playing||s.done) return; const correct=choice===s.target, used=s.diff; let direction;
+    if(correct){s.streak++; if(s.streak===2){direction='down';s.streak=0;}} else {s.streak=0;direction='up';}
+    let reversal=false; if(direction){ if(s.lastDirection&&direction!==s.lastDirection){reversal=true;s.reversals.push({trial:s.trial,diff:used});} s.lastDirection=direction; const step=spec.steps[Math.min(Math.floor(s.reversals.length/2),spec.steps.length-1)]; s.diff=Math.max(spec.min,Math.min(spec.max, s.diff+(direction==='down'?-step:step))); }
+    s.records.push({trial:s.trial,diff:used,correct,reversal,target:s.target+1});
+    const feedback=$('.feedback',document.getElementById(kind)); feedback.textContent=`${correct?'Correct':'Incorrect'} — target was Option ${s.target+1}.${reversal?' Reversal recorded.':''}`; feedback.className='feedback '+(correct?'correct':'incorrect'); document.querySelectorAll(`#${kind} .choice`).forEach(b=>b.disabled=true);
+    if(s.reversals.length>=6){s.done=true;s.running=false; render(kind);} else { render(kind); const f=$('.feedback',document.getElementById(kind)); f.textContent=`${correct?'Correct':'Incorrect'} — target was Option ${s.target+1}.${reversal?' Reversal recorded.':''}`; f.className='feedback '+(correct?'correct':'incorrect'); }
+  }
+  function renderResult(kind){ const s=states[kind], spec=specs[kind], last=s.reversals.slice(-4), threshold=last.reduce((a,b)=>a+b.diff,0)/last.length, box=$('#result',document.getElementById(kind)); box.innerHTML=`<h2>Estimated threshold</h2><div class="threshold">${fmt(threshold)} ${spec.unit}</div><p class="small">Average of reversal points 3–6: ${last.map(x=>fmt(x.diff)).join(', ')} ${spec.unit}. The plot shows the difference presented on every trial; filled circles indicate response accuracy and violet rings mark reversals.</p><svg id="plot" viewBox="0 0 760 320" role="img" aria-label="Trial history chart"></svg>`; drawPlot($('#plot',box),s,spec,threshold); }
+  function drawPlot(svg,s,spec,threshold){ const W=760,H=320,m={l:70,r:24,t:34,b:55}, data=s.records, vals=data.map(d=>d.diff).concat([threshold]), lo=Math.min(...vals), hi=Math.max(...vals), pad=Math.max((hi-lo)*.16,spec.min*.4), yMin=Math.max(0,lo-pad),yMax=hi+pad; const x=i=>m.l+(i-1)*(W-m.l-m.r)/Math.max(1,data.length-1), y=v=>H-m.b-(v-yMin)*(H-m.t-m.b)/(yMax-yMin); const ticks=[yMin,(yMin+yMax)/2,yMax]; svg.innerHTML=`<text x="${m.l}" y="18" class="svg-title">${spec.name}: adaptive trial history</text><line class="axis" x1="${m.l}" y1="${H-m.b}" x2="${W-m.r}" y2="${H-m.b}"/><line class="axis" x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${H-m.b}"/>${ticks.map(t=>`<g><line class="axis" x1="${m.l-5}" y1="${y(t)}" x2="${W-m.r}" y2="${y(t)}" opacity=".35"/><text class="svg-label" text-anchor="end" x="${m.l-9}" y="${y(t)+4}">${fmt(t)}</text></g>`).join('')}<path class="path" d="M ${data.map(d=>`${x(d.trial)} ${y(d.diff)}`).join(' L ')}"/><line x1="${m.l}" y1="${y(threshold)}" x2="${W-m.r}" y2="${y(threshold)}" stroke="#7152c9" stroke-dasharray="5 4"/><text class="svg-label" x="${W-m.r}" y="${y(threshold)-7}" text-anchor="end">threshold ${fmt(threshold)} ${spec.unit}</text>${data.map(d=>`<circle class="point ${d.correct?'correct':'incorrect'}" cx="${x(d.trial)}" cy="${y(d.diff)}" r="5"/>${d.reversal?`<circle class="reversal-ring" cx="${x(d.trial)}" cy="${y(d.diff)}" r="8"/>`:''}`).join('')}<text class="svg-label" text-anchor="middle" x="${(W+m.l-m.r)/2}" y="${H-12}">Trial number</text><text class="svg-label" text-anchor="middle" transform="translate(17 ${(H+m.t-m.b)/2}) rotate(-90)">${spec.name} (${spec.unit})</text>`; }
+  document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.tab,.test').forEach(el=>el.classList.remove('active'));tab.classList.add('active');document.getElementById(tab.dataset.test).classList.add('active');}));
+  Object.keys(specs).forEach(render);
+})();
+</script>
+</body>
+</html>
