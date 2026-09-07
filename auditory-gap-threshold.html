@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gap Lab — Auditory temporal resolution</title>
+  <style>
+    :root { --ink:#18212b; --muted:#66727f; --paper:#f7f8f7; --card:#fff; --line:#dfe5e8; --accent:#176b72; --accent-pale:#e2f1f0; --warm:#ed9b52; --shadow:0 12px 36px rgba(20,40,50,.08); }
+    * { box-sizing:border-box; } body { margin:0; color:var(--ink); background:var(--paper); font:16px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; }
+    header { max-width:1020px; margin:auto; padding:38px 28px 18px; display:flex; justify-content:space-between; align-items:center; } .brand { font-weight:800; letter-spacing:.03em; } .tag { color:var(--accent); background:var(--accent-pale); padding:5px 10px; border-radius:999px; font-size:.78rem; font-weight:700; }
+    main { max-width:1020px; margin:auto; padding:16px 28px 52px; } h1 { font-size:clamp(2rem,5vw,3.7rem); letter-spacing:-.055em; line-height:1; max-width:740px; margin:18px 0; } h2 { font-size:1.25rem; margin:0 0 12px; } .lede { max-width:660px; color:var(--muted); font-size:1.1rem; }
+    .grid { display:grid; grid-template-columns:1.45fr .8fr; gap:22px; margin-top:30px; } .card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:25px; box-shadow:var(--shadow); } .test { min-height:450px; } .phase { text-transform:uppercase; letter-spacing:.13em; font-weight:800; color:var(--accent); font-size:.72rem; } .status { font-size:1.25rem; font-weight:750; margin:8px 0 20px; } .instruction { color:var(--muted); min-height:48px; }
+    .choices { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:25px 0 16px; } button { font:inherit; cursor:pointer; border-radius:12px; padding:13px 14px; border:1px solid #b9c8ca; color:var(--ink); background:#fff; transition:.15s ease; } button:hover:not(:disabled) { border-color:var(--accent); transform:translateY(-1px); } button:focus-visible { outline:3px solid #f6c788; outline-offset:2px; } button:disabled { opacity:.42; cursor:not-allowed; } .sound { min-height:91px; font-weight:750; font-size:1.05rem; } .sound small { display:block; color:var(--muted); font-weight:500; font-size:.78rem; margin-top:5px; } .primary { background:var(--accent); color:white; border-color:var(--accent); font-weight:750; } .controls { display:flex; gap:10px; align-items:center; margin-top:20px; } .feedback { min-height:26px; font-weight:700; color:var(--accent); }
+    .metric { padding:16px 0; border-bottom:1px solid var(--line); } .metric:last-child { border-bottom:0; } .metric b { display:block; font-size:1.6rem; letter-spacing:-.04em; } .metric span { color:var(--muted); font-size:.85rem; } .meter { height:8px; border-radius:999px; overflow:hidden; background:#e9eeee; margin:16px 0 5px; } .fill { height:100%; width:0%; background:var(--warm); transition:width .3s; }
+    .how { margin-top:23px; } .how ol { margin:0; padding-left:22px; color:var(--muted); } .setup { background:#f5f9f8; border:1px solid #d8e8e5; border-radius:12px; padding:15px 17px; margin:14px 0 18px; } .setup .instruction { min-height:0; margin:0; } .setup ul { margin:10px 0; padding-left:20px; color:var(--muted); font-size:.9rem; } .setup li { margin:7px 0; } .setup b { color:var(--ink); } .check { display:block; border-top:1px solid #d8e8e5; padding-top:11px; color:#345960; font-size:.85rem; font-weight:650; cursor:pointer; } .check input { accent-color:var(--accent); margin-right:7px; vertical-align:middle; } .result { display:none; margin-top:24px; background:#edf7f5; border:1px solid #b7ddd7; border-radius:14px; padding:19px; } .result strong { font-size:2.1rem; letter-spacing:-.05em; color:#115c62; } .result p { margin:6px 0 0; color:#42636a; } .plot { margin:19px 0 3px; padding-top:17px; border-top:1px solid #b7ddd7; } .plot h2 { margin-bottom:4px; } canvas { display:block; width:100%; height:265px; border-radius:9px; background:#fff; border:1px solid #d5e7e4; } .legend { color:#42636a; font-size:.78rem; margin:7px 0 0; } .note { font-size:.82rem; color:var(--muted); margin-top:17px; }
+    .context { margin-top:22px; } .context p { color:var(--muted); margin:0 0 17px; } .uses { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; } .use { border-left:3px solid var(--warm); padding:5px 0 5px 12px; } .use b { display:block; font-size:.92rem; } .use span { color:var(--muted); font-size:.85rem; }
+    @media(max-width:760px){ header,main{padding-left:18px;padding-right:18px}.grid{grid-template-columns:1fr}.choices{gap:8px}.card{padding:20px}.uses{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <header><div class="brand">GAP LAB</div><div class="tag">3AFC · adaptive listening test</div></header>
+  <main>
+    <div class="phase">Engineering psychology / sensory thresholds</div>
+    <h1>How small a silence can you hear?</h1>
+    <p class="lede">Three equal white-noise bursts are presented on each trial. One has a silent gap exactly in its center. Find it; the gap adapts to your responses.</p>
+    <div class="grid">
+      <section class="card test" aria-labelledby="testTitle">
+        <div class="phase" id="testTitle">Listening station</div>
+        <div class="status" id="status">Set up before you listen</div>
+        <div class="setup" id="setup">
+          <p class="instruction">For a reliable, comfortable result, take a minute to prepare:</p>
+          <ul>
+            <li><b>Use headphones</b> in a quiet room. Do not take the test while driving, walking near traffic, or operating equipment.</li>
+            <li><b>Set a low, comfortable volume.</b> The noise should be easy to hear but never loud, sharp, or uncomfortable. Do not increase volume to find the gap.</li>
+            <li><b>Pause if needed.</b> Stop immediately if you feel discomfort, ringing, pain, dizziness, or fatigue.</li>
+            <li><b>Listen without rushing.</b> Each option can be replayed before you choose; pick the one with a brief silence in its middle.</li>
+          </ul>
+          <label class="check"><input type="checkbox" id="readyCheck" /> I am in a safe setting, using comfortable volume, and understand this is an educational screening—not a hearing diagnosis.</label>
+        </div>
+        <div class="choices" aria-label="Sound options">
+          <button class="sound" data-play="0" disabled>Play 1<small>white noise · 700 ms</small></button>
+          <button class="sound" data-play="1" disabled>Play 2<small>white noise · 700 ms</small></button>
+          <button class="sound" data-play="2" disabled>Play 3<small>white noise · 700 ms</small></button>
+        </div>
+        <div class="choices" aria-label="Choose the option with the gap">
+          <button data-answer="0" disabled>Gap was in 1</button>
+          <button data-answer="1" disabled>Gap was in 2</button>
+          <button data-answer="2" disabled>Gap was in 3</button>
+        </div>
+        <div class="controls"><button class="primary" id="start" disabled>Start test</button><button id="next" disabled>Play next trial</button></div>
+        <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+        <div class="result" id="result"><div class="phase">Estimated temporal-gap threshold</div><strong id="threshold">— ms</strong><p id="resultText"></p><div class="plot"><h2>Adaptive test record</h2><canvas id="staircasePlot" role="img" aria-label="Staircase plot of gap duration by trial, response correctness, reversals, and estimated threshold."></canvas><p class="legend"><span style="color:#176b72">● correct</span> &nbsp; <span style="color:#c85b4a">● incorrect</span> &nbsp; ◆ reversal &nbsp; — estimated threshold</p></div><button id="restart" style="margin-top:15px">Run again</button></div>
+        <p class="note">Educational screening only—not a hearing test or clinical diagnosis. Keep playback comfortable; stop if it feels unpleasant.</p>
+      </section>
+      <aside class="card" aria-label="Test details">
+        <h2>Live estimate</h2>
+        <div class="metric"><b id="gapValue">80 ms</b><span>current silent-gap duration</span></div>
+        <div class="metric"><b id="trialCount">0</b><span>completed trials</span></div>
+        <div class="metric"><b id="reversalCount">0 / 6</b><span>staircase reversals</span></div>
+        <div class="meter" aria-hidden="true"><div class="fill" id="progress"></div></div>
+        <span id="method">2-down / 1-up staircase · targets ~71% correct</span>
+        <div class="how"><h2>How it works</h2><ol><li>Each burst is continuous white noise, except one center gap.</li><li>Two correct choices shorten the next gap; one error lengthens it.</li><li>The step size decreases from 16 to 8 to 4 ms as reversals accumulate.</li><li>After six reversals, the final threshold is the average of the last four reversal points.</li></ol></div>
+      </aside>
+    </div>
+    <section class="card context"><h2>Why temporal resolution matters</h2><p>Temporal resolution is the auditory system’s ability to separate events that happen close together. A short detectable gap signals how precisely a listener can track rapid changes in sound—not simply how loudly they hear.</p><div class="uses"><div class="use"><b>Speech perception</b><span>Fast consonant transitions, stop releases, and brief pauses carry intelligibility—especially in noise or rapid speech.</span></div><div class="use"><b>Alerts</b><span>Separating urgent tones in time makes alarm sequences less likely to blur into one undifferentiated sound.</span></div><div class="use"><b>Auditory interfaces</b><span>Distinct onset timing and adequate spacing help users identify confirmation sounds, messages, and competing cues.</span></div><div class="use"><b>Time-critical feedback</b><span>Feedback must arrive promptly and remain temporally distinct so a person can link it to an action and react safely.</span></div></div></section>
+  </main>
+<script>
+(() => {
+  const DURATION = .70, START_GAP = 80, NEEDED_REVERSALS = 6;
+  let ctx, state, buffers = [], targetIndex = -1;
+  const $ = id => document.getElementById(id), plays = [...document.querySelectorAll('[data-play]')], answers = [...document.querySelectorAll('[data-answer]')];
+  function freshState(){ return {gap:START_GAP, trial:0, correctRun:0, direction:null, reversals:[], history:[], done:false}; }
+  function update(){ $('gapValue').textContent = Math.round(state.gap)+' ms'; $('trialCount').textContent = state.trial; $('reversalCount').textContent = state.reversals.length+' / '+NEEDED_REVERSALS; $('progress').style.width = (100 * state.reversals.length/NEEDED_REVERSALS)+'%'; }
+  function makeBuffer(gapMs, isTarget){
+    const rate = ctx.sampleRate, length = Math.floor(DURATION*rate), b = ctx.createBuffer(1,length,rate), a=b.getChannelData(0);
+    for(let i=0;i<length;i++) a[i] = (Math.random()*2-1)*.16;
+    if(isTarget){ const half=Math.round(gapMs/2000*rate), mid=Math.floor(length/2), ramp=Math.round(.003*rate); for(let i=mid-half-ramp;i<mid+half+ramp;i++){ if(i>=0&&i<length){ const d=Math.abs(i-mid); if(d<=half) a[i]=0; else { const f=(d-half)/ramp; a[i] *= Math.sin(f*Math.PI/2); } } } }
+    return b;
+  }
+  function play(i){ if(!buffers[i]||state.done)return; const source=ctx.createBufferSource(); source.buffer=buffers[i]; source.connect(ctx.destination); source.start(); }
+  function playSequence(){ if(state.done)return; const startAt=ctx.currentTime+.08; buffers.forEach((buffer,i)=>{ const source=ctx.createBufferSource(); source.buffer=buffer; source.connect(ctx.destination); source.start(startAt+i*(DURATION+.22)); }); }
+  function enableChoices(on){ plays.forEach(b=>b.disabled=!on); answers.forEach(b=>b.disabled=!on); }
+  function newTrial(){ targetIndex=Math.floor(Math.random()*3); buffers=[0,1,2].map(i=>makeBuffer(state.gap,i===targetIndex)); enableChoices(true); $('next').disabled=true; $('feedback').textContent='Playing options 1, 2, and 3 in order. Replay any option if you need to, then choose the one with the silent gap.'; $('status').textContent='Trial '+(state.trial+1); playSequence(); }
+  function choose(choice){ if(state.done)return; enableChoices(false); state.trial++; const correct=choice===targetIndex, trialGap=state.gap; $('feedback').textContent=correct ? 'Correct — the next gap may become shorter.' : 'Not this time — the next gap will be easier.'; let move=null, reversal=false;
+    if(correct){ state.correctRun++; if(state.correctRun===2){move='down';state.correctRun=0;} } else {move='up';state.correctRun=0;}
+    if(move){ if(state.direction && move!==state.direction){ state.reversals.push(trialGap); reversal=true; } state.direction=move; const step=state.reversals.length<2?16:state.reversals.length<4?8:4; state.gap=Math.max(2,Math.min(160,state.gap+(move==='up'?step:-step))); }
+    state.history.push({trial:state.trial,gap:trialGap,correct,reversal});
+    update();
+    if(state.reversals.length>=NEEDED_REVERSALS) finish(); else { $('next').disabled=false; $('next').focus(); }
+  }
+  function drawPlot(estimate){ const canvas=$('staircasePlot'), box=canvas.getBoundingClientRect(), ratio=window.devicePixelRatio||1, w=Math.max(360,box.width), h=265; canvas.width=w*ratio; canvas.height=h*ratio; const c=canvas.getContext('2d'); c.scale(ratio,ratio); const pad={l:48,r:18,t:18,b:38}, pw=w-pad.l-pad.r, ph=h-pad.t-pad.b, values=state.history.map(d=>d.gap); const lo=Math.max(0,Math.floor((Math.min(...values,estimate)-8)/10)*10), hi=Math.ceil((Math.max(...values,estimate)+8)/10)*10; const x=i=>pad.l+(i/(Math.max(1,state.history.length-1)))*pw, y=v=>pad.t+(hi-v)/(hi-lo||1)*ph; c.font='12px system-ui'; c.fillStyle='#66727f'; c.strokeStyle='#dbe7e5'; c.lineWidth=1; for(let n=0;n<=4;n++){ const v=lo+(hi-lo)*n/4, yy=y(v); c.beginPath(); c.moveTo(pad.l,yy); c.lineTo(w-pad.r,yy); c.stroke(); c.fillText(Math.round(v)+' ms',3,yy+4); } c.strokeStyle='#176b72'; c.lineWidth=2; c.beginPath(); state.history.forEach((d,i)=>i?c.lineTo(x(i),y(d.gap)):c.moveTo(x(i),y(d.gap))); c.stroke(); c.setLineDash([5,4]); c.strokeStyle='#9a7438'; c.beginPath(); c.moveTo(pad.l,y(estimate)); c.lineTo(w-pad.r,y(estimate)); c.stroke(); c.setLineDash([]); state.history.forEach((d,i)=>{ const xx=x(i),yy=y(d.gap); c.fillStyle=d.correct?'#176b72':'#c85b4a'; c.beginPath(); c.arc(xx,yy,4,0,Math.PI*2); c.fill(); if(d.reversal){ c.fillStyle='#ed9b52'; c.save(); c.translate(xx,yy); c.rotate(Math.PI/4); c.fillRect(-5,-5,10,10); c.restore(); } }); c.fillStyle='#66727f'; c.fillText('Trial number',pad.l+pw/2-34,h-9); c.save(); c.translate(13,pad.t+ph/2+28); c.rotate(-Math.PI/2); c.fillText('Gap duration',0,0); c.restore(); }
+  function finish(){ state.done=true; const samples=state.reversals.slice(-4); const estimate=samples.reduce((sum,v)=>sum+v,0)/samples.length; $('threshold').textContent=Math.round(estimate)+' ms'; $('resultText').textContent='Based on '+state.trial+' trials and six direction reversals. The estimate is the average of the final four reversal points: '+samples.map(v=>Math.round(v)+' ms').join(', ')+'.'; $('result').style.display='block'; drawPlot(estimate); $('status').textContent='Test complete'; $('next').disabled=true; }
+  async function begin(){ ctx = ctx || new (window.AudioContext||window.webkitAudioContext)(); await ctx.resume(); state=freshState(); $('result').style.display='none'; $('setup').style.display='none'; $('start').textContent='Test in progress'; $('start').disabled=true; $('instruction').textContent='The three sounds play automatically on every trial. Each option can also be replayed. Which one contains the brief silence in the middle?'; update(); newTrial(); }
+  $('readyCheck').addEventListener('change', e => { $('start').disabled=!e.target.checked; }); $('start').addEventListener('click',begin); $('restart').addEventListener('click',begin); $('next').addEventListener('click',newTrial); plays.forEach(b=>b.addEventListener('click',()=>play(+b.dataset.play))); answers.forEach(b=>b.addEventListener('click',()=>choose(+b.dataset.answer))); state=freshState(); update();
+})();
+</script>
+</body>
+</html>
