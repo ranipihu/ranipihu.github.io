@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Auditory Threshold Test</title>
+  <style>
+    :root { color-scheme: light dark; --bg: #f5f7fb; --surface: #ffffff; --ink: #172033; --muted: #59647a; --line: #d8deea; --accent: #3459d9; --safe: #e7f5ec; --safe-ink: #155d35; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#111622; --surface:#1b2332; --ink:#eef3ff; --muted:#b4bfd2; --line:#344159; --accent:#88a7ff; --safe:#183b2a; --safe-ink:#a7e8bf; } }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; line-height:1.5; }
+    main { max-width:760px; margin:0 auto; padding:32px 18px 48px; }
+    h1 { margin:0 0 6px; font-size:clamp(1.7rem,4vw,2.35rem); }
+    h2 { font-size:1.15rem; margin:0 0 12px; }
+    .intro, .hint { color:var(--muted); margin:0; }
+    .card { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px; margin-top:18px; }
+    label { display:block; font-weight:650; margin-bottom:8px; }
+    .value { font-variant-numeric:tabular-nums; font-size:clamp(2.4rem,8vw,4.2rem); font-weight:750; line-height:1; color:var(--accent); margin:14px 0; }
+    input[type="range"] { width:100%; accent-color:var(--accent); }
+    input[type="number"] { width:10rem; padding:9px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); font:inherit; }
+    .range-labels, .row { display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; }
+    .range-labels { color:var(--muted); font-size:.9rem; }
+    button { border:0; border-radius:9px; padding:11px 16px; background:var(--accent); color:white; font:inherit; font-weight:650; cursor:pointer; }
+    button.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .volume { width:min(250px,100%); }
+    .status { min-height:1.5em; margin:12px 0 0; color:var(--muted); }
+    .result { background:var(--safe); color:var(--safe-ink); border-radius:10px; padding:15px; margin-top:16px; font-size:1.05rem; }
+    .result strong { font-size:1.35rem; }
+    ul { padding-left:20px; margin-bottom:0; }
+    .warning { border-left:4px solid #d08b1c; padding-left:12px; color:var(--muted); }
+    .steps { margin:8px 0 0; padding-left:20px; }
+    .steps li { margin:5px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Auditory Threshold Test</h1>
+      <p class="intro">Find the highest pure tone you can hear, measured in 50 Hz steps from 20 Hz to 20 kHz.</p>
+    </header>
+
+    <section class="card" aria-labelledby="how-heading">
+      <h2 id="how-heading">How to test</h2>
+      <ol class="steps">
+        <li>Set your computer’s system volume to <strong>50%</strong> and keep it at that level for the entire test. Use familiar headphones or speakers in a quiet room.</li>
+        <li>Play a tone, then raise the frequency by 50 Hz until it is no longer audible.</li>
+        <li>Go back down in 50 Hz steps to confirm the highest tone you can hear, then record it.</li>
+      </ol>
+    </section>
+
+    <section class="card" aria-labelledby="tone-heading">
+      <h2 id="tone-heading">Tone generator</h2>
+      <div class="value" id="frequencyReadout" aria-live="polite">10,000 Hz</div>
+      <label for="frequency">Frequency</label>
+      <input id="frequency" type="range" min="20" max="20000" step="50" value="10000">
+      <div class="range-labels" aria-hidden="true"><span>20 Hz</span><span>20,000 Hz</span></div>
+      <div class="row" style="margin-top:18px">
+        <div>
+          <label for="frequencyInput">Set frequency (Hz)</label>
+          <input id="frequencyInput" type="number" min="20" max="20000" step="50" value="10000" inputmode="numeric">
+        </div>
+        <div>
+          <label for="volume">Volume: <span id="volumeReadout">10</span>%</label>
+          <input class="volume" id="volume" type="range" min="1" max="25" value="10">
+        </div>
+      </div>
+      <div class="row" style="margin-top:20px">
+        <button id="playButton" type="button">Play 1.5-second tone</button>
+        <button id="stopButton" class="secondary" type="button" disabled>Stop</button>
+      </div>
+      <p class="status" id="status" role="status">Ready. The volume is deliberately limited to 25%.</p>
+    </section>
+
+    <section class="card" aria-labelledby="record-heading">
+      <h2 id="record-heading">Record your threshold</h2>
+      <p class="hint">Only record a frequency after you can repeatably hear it. The recorded result is rounded to the nearest 50 Hz.</p>
+      <div class="row" style="margin-top:16px">
+        <button id="recordButton" type="button">I can hear this tone</button>
+        <button id="clearButton" class="secondary" type="button">Clear result</button>
+      </div>
+      <div class="result" id="result" aria-live="polite">No highest audible frequency recorded yet.</div>
+    </section>
+
+    <section class="card" aria-labelledby="implications-heading">
+      <h2 id="implications-heading">What the result means for design</h2>
+      <ul>
+        <li><strong>Auditory displays:</strong> keep important cues well below a listener’s upper limit; mid-frequency cues are more reliably heard across users.</li>
+        <li><strong>Alarms:</strong> do not rely on a single very high-pitched tone. Use a lower-frequency component, repetition, and a visual or vibration backup.</li>
+        <li><strong>Device feedback:</strong> offer volume and sound choices; short, distinct tones are easier to notice than faint or high-frequency beeps.</li>
+        <li><strong>Limits:</strong> age-related high-frequency hearing loss, headphone/speaker response, room noise, browser/device processing, and volume all affect this informal result.</li>
+      </ul>
+      <p class="warning"><strong>Safety:</strong> this is an educational screening activity, not a hearing test. Stop if a tone is uncomfortable or causes ringing; do not increase volume to chase a result.</p>
+    </section>
+  </main>
+  <script>
+    (() => {
+      const frequency = document.getElementById('frequency');
+      const frequencyInput = document.getElementById('frequencyInput');
+      const frequencyReadout = document.getElementById('frequencyReadout');
+      const volume = document.getElementById('volume');
+      const volumeReadout = document.getElementById('volumeReadout');
+      const playButton = document.getElementById('playButton');
+      const stopButton = document.getElementById('stopButton');
+      const recordButton = document.getElementById('recordButton');
+      const clearButton = document.getElementById('clearButton');
+      const status = document.getElementById('status');
+      const result = document.getElementById('result');
+      let context, oscillator, gain, stopTimer, recorded = null;
+
+      const nearest50 = value => Math.round(value / 50) * 50;
+      const bounded = value => Math.min(20000, Math.max(20, nearest50(value)));
+      const setFrequency = raw => {
+        const value = bounded(Number(raw) || 20);
+        frequency.value = value;
+        frequencyInput.value = value;
+        frequencyReadout.textContent = `${value.toLocaleString()} Hz`;
+      };
+      const stopTone = () => {
+        if (stopTimer) clearTimeout(stopTimer);
+        if (oscillator) { try { oscillator.stop(); } catch (_) {} oscillator.disconnect(); oscillator = null; }
+        if (gain) { gain.disconnect(); gain = null; }
+        playButton.disabled = false;
+        stopButton.disabled = true;
+      };
+      const playTone = async () => {
+        stopTone();
+        context ||= new (window.AudioContext || window.webkitAudioContext)();
+        await context.resume();
+        oscillator = context.createOscillator();
+        gain = context.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = Number(frequency.value);
+        const level = Number(volume.value) / 100;
+        gain.gain.setValueAtTime(0.0001, context.currentTime);
+        gain.gain.exponentialRampToValueAtTime(level, context.currentTime + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 1.45);
+        oscillator.connect(gain).connect(context.destination);
+        oscillator.start();
+        stopTimer = setTimeout(() => { stopTone(); status.textContent = 'Tone finished. Adjust the frequency and try again.'; }, 1500);
+        playButton.disabled = true;
+        stopButton.disabled = false;
+        status.textContent = `Playing ${Number(frequency.value).toLocaleString()} Hz at ${volume.value}% volume.`;
+      };
+      frequency.addEventListener('input', e => setFrequency(e.target.value));
+      frequencyInput.addEventListener('change', e => setFrequency(e.target.value));
+      volume.addEventListener('input', () => volumeReadout.textContent = volume.value);
+      playButton.addEventListener('click', () => playTone().catch(() => { status.textContent = 'Audio could not start. Try using a current browser and interact with the page again.'; stopTone(); }));
+      stopButton.addEventListener('click', () => { stopTone(); status.textContent = 'Tone stopped.'; });
+      recordButton.addEventListener('click', () => {
+        const value = Number(frequency.value);
+        recorded = recorded === null ? value : Math.max(recorded, value);
+        result.innerHTML = `Highest audible frequency recorded: <strong>${recorded.toLocaleString()} Hz</strong><br><span>This is an informal estimate in 50 Hz steps. Confirm it by retesting just above and below this frequency.</span>`;
+        status.textContent = `${value.toLocaleString()} Hz recorded as audible.`;
+      });
+      clearButton.addEventListener('click', () => { recorded = null; result.textContent = 'No highest audible frequency recorded yet.'; status.textContent = 'Result cleared.'; });
+      setFrequency(frequency.value);
+    })();
+  </script>
+</body>
+</html>
