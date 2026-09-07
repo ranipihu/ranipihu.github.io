@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contrast Sensitivity Lab</title>
+  <style>
+    :root { --ink:#17212b; --paper:#f7f9fc; --line:#ccd6e0; --accent:#115e93; --soft:#e9f1f8; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width:900px; margin:auto; padding:28px 18px 46px; }
+    h1 { margin:0 0 4px; font-size:clamp(1.7rem,4vw,2.4rem); } h2 { margin-top:28px; }
+    .sub { margin:0; color:#435466; }
+    .panel { background:#fff; border:1px solid var(--line); border-radius:12px; padding:22px; margin-top:22px; }
+    .setup { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    label { display:block; font-weight:650; } input, select, button { font:inherit; }
+    input, select { width:100%; margin-top:5px; padding:9px; border:1px solid #8fa1b2; border-radius:7px; background:white; }
+    button { cursor:pointer; border:0; border-radius:8px; padding:10px 16px; background:var(--accent); color:white; font-weight:700; }
+    button:hover { filter:brightness(.92); } button:focus-visible, input:focus-visible { outline:3px solid #ed9b27; outline-offset:2px; }
+    .secondary { background:#526170; } .hidden { display:none !important; }
+    .stage { min-height:300px; display:grid; place-items:center; background:rgb(245,245,245); border-radius:10px; margin:16px 0; padding:18px; }
+    #stimulus { font-family:Arial,sans-serif; font-size:clamp(88px,22vw,190px); line-height:1; font-weight:700; letter-spacing:.03em; }
+    .status { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; color:#435466; }
+    .answers { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; }
+    .answer { padding:10px 3px; background:#e6edf3; color:#17212b; border:1px solid #c4d0da; }
+    .answer:hover { background:#d6e4ef; } .answer:disabled { opacity:.55; cursor:not-allowed; }
+    .callout { padding:14px; border-left:4px solid var(--accent); background:var(--soft); }
+    .metric { font-size:clamp(2rem,7vw,3.7rem); font-weight:750; color:var(--accent); margin:0; }
+    .small { color:#435466; font-size:.92rem; } code { background:#edf1f5; padding:1px 4px; border-radius:3px; }
+    table { width:100%; border-collapse:collapse; margin-top:14px; } th,td { text-align:left; padding:8px; border-bottom:1px solid var(--line); }
+    @media (max-width:560px) { .setup { grid-template-columns:1fr; } .answers { grid-template-columns:repeat(5,1fr); } }
+    @media print { .no-print { display:none; } body { background:#fff; } .panel { border:0; padding:0; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Contrast Sensitivity Lab</h1>
+  <p class="sub">A classroom demonstration inspired by Pelli–Robson letter charts. It is not a clinical vision test.</p>
+
+  <section id="intro" class="panel">
+    <h2>Before you begin</h2>
+    <div class="setup">
+      <label>Participant ID (optional)<input id="participant" maxlength="40" placeholder="e.g., P01"></label>
+      <label>Viewing condition<select id="condition"><option>Normal room lighting</option><option>Dim room lighting</option><option>Screen brightness reduced</option><option>Other / recorded separately</option></select></label>
+    </div>
+    <ol>
+      <li>Place the computer so the screen is at eye level, about an arm’s length away.</li>
+      <li>Set screen brightness to a medium level and complete the test in a medium-lit room.</li>
+      <li>Disable night/blue-light filters if possible and use your usual visual correction.</li>
+      <li>Identify the letter using the on-screen keys. Guess if unsure; do not use image zoom or screenshots.</li>
+    </ol>
+    <p class="callout"><strong>Method:</strong> Three letters appear at each contrast and the test descends continuously, including levels below 1.5%. It ends only after four incorrect responses in a row. At the 0.05% floor, the near-invisible level repeats until that stopping rule is met. The estimated threshold is the lowest contrast correctly identified before the error run.</p>
+    <button id="start" class="no-print">Start test</button>
+  </section>
+
+  <section id="test" class="panel hidden" aria-labelledby="test-title">
+    <h2 id="test-title">Identify the letter</h2>
+    <div class="status"><span id="progress">Level 1 · letter 1 of 3</span><strong id="contrastLabel">Contrast: 90%</strong></div>
+    <div class="stage"><span id="stimulus" aria-live="polite" aria-label="Identify this letter"></span></div>
+    <p class="small">Choose a response (or press its letter key).</p>
+    <div id="answers" class="answers" aria-label="Letter responses"></div>
+    <p id="feedback" class="small" aria-live="polite"></p>
+  </section>
+
+  <section id="result" class="panel hidden" aria-labelledby="result-title">
+    <h2 id="result-title">Estimated contrast sensitivity</h2>
+    <p id="score" class="metric"></p>
+    <p id="interpretation"></p>
+    <div class="callout" id="bitDiscussion"></div>
+    <h2>Responses by level</h2>
+    <table><thead><tr><th>Weber contrast</th><th>Correct / shown</th><th>Responses</th></tr></thead><tbody id="rows"></tbody></table>
+    <h2>Assignment discussion points</h2>
+    <ul>
+      <li><strong>Legibility:</strong> Text, icons, and critical controls must stay above the user’s usable contrast threshold, with an allowance for glare, small type, fatigue, and viewing distance.</li>
+      <li><strong>Visual ergonomics:</strong> Ambient light, screen angle, brightness, and reflections can raise thresholds. Repeat the test under controlled and low-light conditions to demonstrate this effect.</li>
+      <li><strong>Accessibility:</strong> WCAG contrast ratios are design safeguards, not individual clinical measurements. Design for the lower-performing or more fatigued viewer rather than a single measured threshold.</li>
+      <li><strong>Low-contrast interfaces:</strong> Placeholder text, disabled states, thin fonts, and gray-on-gray controls can become functionally invisible even when a person can still read high-contrast text.</li>
+    </ul>
+    <button id="copy" class="no-print">Copy report</button> <button id="restart" class="secondary no-print">Run again</button>
+    <p id="copyStatus" class="small" aria-live="polite"></p>
+  </section>
+</main>
+<script>
+  const levels = [90,70,50,35,25,18,13,9,6,4,3,2,1.5,1.2,1,0.8,0.6,0.5,0.4,0.3,0.2,0.1,0.05];
+  const letters = 'CDEFHKNPRSTVZ'.split('');
+  const participant = document.querySelector('#participant'), condition = document.querySelector('#condition');
+  const intro = document.querySelector('#intro'), test = document.querySelector('#test'), result = document.querySelector('#result');
+  const stimulus = document.querySelector('#stimulus'), answers = document.querySelector('#answers');
+  let levelIndex, trial, current, records, active, consecutiveErrors, lastCorrectContrast;
+  function pick() { return letters[Math.floor(Math.random()*letters.length)]; }
+  function currentContrast() { return levels[Math.min(levelIndex, levels.length - 1)]; }
+  function setStimulus() {
+    current = pick();
+    const contrast = currentContrast();
+    const c = contrast / 100;
+    const background = 245;
+    const foreground = Math.round(background * (1 - c));
+    stimulus.textContent = current;
+    stimulus.style.color = `rgb(${foreground},${foreground},${foreground})`;
+    document.querySelector('#progress').textContent = `Level ${levelIndex+1} · letter ${trial+1} of 3`;
+    document.querySelector('#contrastLabel').textContent = `Weber contrast: ${contrast}%`;
+  }
+  function begin() {
+    levelIndex=0; trial=0; records=[]; active=true; consecutiveErrors=0; lastCorrectContrast=null;
+    intro.classList.add('hidden'); result.classList.add('hidden'); test.classList.remove('hidden');
+    answers.innerHTML = letters.map(l => `<button class="answer" type="button" data-letter="${l}" aria-label="Answer ${l}">${l}</button>`).join('');
+    setStimulus(); document.querySelector('[data-letter="C"]').focus();
+  }
+  function answer(value) {
+    if (!active) return;
+    const correct = value === current;
+    let rec = records[levelIndex] || { contrast:currentContrast(), correct:0, shown:0 };
+    rec.shown++; rec.correct += correct ? 1 : 0; records[levelIndex] = rec;
+    if (correct) { consecutiveErrors=0; lastCorrectContrast=currentContrast(); }
+    else consecutiveErrors++;
+    trial++;
+    document.querySelector('#feedback').textContent = correct ? `Correct. Consecutive errors: 0 of 4.` : `Incorrect. Consecutive errors: ${consecutiveErrors} of 4.`;
+    if (consecutiveErrors === 4) { active=false; setTimeout(showResults, 450); return; }
+    if (trial === 3) { levelIndex++; trial=0; }
+    setTimeout(setStimulus, 350);
+  }
+  function showResults() {
+    test.classList.add('hidden'); result.classList.remove('hidden');
+    const threshold = lastCorrectContrast ?? levels[0];
+    const sensitivity = Math.round(100 / threshold * 10) / 10;
+    const levelsNeeded = Math.ceil((100 / threshold) + 1);
+    const bits = Math.ceil(Math.log2(levelsNeeded));
+    document.querySelector('#score').textContent = `${threshold}% threshold`;
+    document.querySelector('#interpretation').textContent = `Estimated contrast sensitivity: ${sensitivity}:1 (100 ÷ ${threshold}). The test stopped after four consecutive errors. Lower threshold percentages indicate sensitivity to smaller luminance differences.`;
+    document.querySelector('#bitDiscussion').innerHTML = `<strong>Display-resolution estimate:</strong> To represent a full black-to-white range in steps no larger than this ${threshold}% threshold, a simple linear model needs at least ${levelsNeeded} luminance codes, or <strong>${bits} bits per channel</strong> (${2**bits} codes). An 8-bit channel has 256 codes: its nominal full-scale step is about <strong>0.39%</strong> (100 ÷ 255), not 4%. Real displays are gamma-encoded and affected by noise, glare, and calibration, so code depth alone does not guarantee visible or usable differences.`;
+    document.querySelector('#rows').innerHTML = records.map(r => `<tr><td>${r.contrast}%</td><td>${r.correct} / ${r.shown}</td><td>${r.correct ? 'At least one correct' : 'No correct responses'}</td></tr>`).join('');
+    result.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  document.querySelector('#start').addEventListener('click', begin);
+  document.querySelector('#restart').addEventListener('click', () => { result.classList.add('hidden'); intro.classList.remove('hidden'); intro.scrollIntoView({behavior:'smooth'}); });
+  answers.addEventListener('click', e => { if (e.target.dataset.letter) answer(e.target.dataset.letter); });
+  window.addEventListener('keydown', e => { if (active && letters.includes(e.key.toUpperCase())) answer(e.key.toUpperCase()); });
+  document.querySelector('#copy').addEventListener('click', async () => {
+    const threshold = lastCorrectContrast ?? levels[0];
+    const sensitivity = Math.round(100/threshold*10)/10, bits = Math.ceil(Math.log2(Math.ceil(100/threshold+1)));
+    const report = `Contrast Sensitivity Lab Report\nParticipant: ${participant.value || 'not recorded'}\nCondition: ${condition.value}\nStopping rule: four consecutive incorrect responses\nEstimated threshold: ${threshold}% Weber contrast (lowest correctly identified contrast)\nEstimated contrast sensitivity: ${sensitivity}:1\nMinimum linear code depth for threshold-sized steps: ${bits} bits/channel\n\nLevel results:\n${records.map(r=>`${r.contrast}%: ${r.correct}/${r.shown} correct`).join('\n')}\n\nNote: classroom demonstration, not a clinical measurement.`;
+    try { await navigator.clipboard.writeText(report); document.querySelector('#copyStatus').textContent='Report copied.'; } catch { document.querySelector('#copyStatus').textContent='Copy was blocked; use the displayed results instead.'; }
+  });
+</script>
+</body>
+</html>
