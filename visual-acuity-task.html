@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fork · visual acuity study</title>
+  <style>
+    :root { --ink:#14151b; --muted:#6e707d; --line:#e8e8ed; --paper:#fbfbfc; --blue:#355cff; --blue-soft:#edf0ff; --good:#077a5c; }
+    * { box-sizing:border-box } body { margin:0; color:var(--ink); background:var(--paper); font:15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    header { max-width:1120px; margin:auto; padding:28px 28px 20px; display:flex; justify-content:space-between; align-items:center; } .brand { font-weight:750; letter-spacing:-.04em; font-size:22px } .brand span { color:var(--blue) } .tag { font-size:12px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted) }
+    main { max-width:1120px; margin:auto; padding:8px 28px 64px; } .intro { max-width:720px; margin:34px 0 34px; } h1 { font-size:clamp(34px,5vw,57px); line-height:1.02; letter-spacing:-.055em; margin:0 0 16px; } h1 em { color:var(--blue); font-style:normal } .intro p { color:var(--muted); max-width:630px; font-size:17px; margin:0; }
+    .layout { display:grid; grid-template-columns:300px 1fr; gap:20px; } .panel, .stage, .report { background:#fff; border:1px solid var(--line); border-radius:18px; } .panel { padding:22px; } h2 { margin:0 0 18px; font-size:14px; letter-spacing:.02em; } label { display:block; font-size:12px; font-weight:650; margin:15px 0 6px; color:#4f5260; } .field { display:flex; border:1px solid #d8d9e0; border-radius:9px; overflow:hidden; background:#fff; } input { width:100%; padding:10px 11px; border:0; outline:0; font:inherit; min-width:0; } .unit { padding:10px; background:#f5f5f7; color:var(--muted); font-size:12px; white-space:nowrap; } .hint { font-size:12px; margin:12px 0 0; color:var(--muted); } button { appearance:none; border:0; border-radius:9px; padding:11px 14px; font:650 14px inherit; cursor:pointer; transition:.15s transform,.15s background; } button:active { transform:scale(.98) } .primary { margin-top:18px; width:100%; background:var(--blue); color:#fff; } .secondary { background:var(--blue-soft); color:#2948c8; } .stage { min-height:510px; display:flex; flex-direction:column; overflow:hidden; } .readout { display:flex; padding:15px 20px; justify-content:space-between; border-bottom:1px solid var(--line); color:var(--muted); font-size:13px; } .readout strong { color:var(--ink); } .target-zone { flex:1; min-height:350px; display:grid; place-items:center; padding:28px; background:radial-gradient(circle at center,#fff 25%,#fafafd 100%); } canvas { max-width:100%; image-rendering:pixelated; } .controls { display:grid; grid-template-columns:repeat(4,1fr); gap:9px; padding:16px 20px; border-top:1px solid var(--line); } .answer { background:#f3f4f7; color:#252631; font-size:13px; } .answer:hover { background:#e9ebf1; } .answer:disabled { opacity:.4; cursor:not-allowed; } .key { color:#858794; font-size:11px; margin-left:5px; } .status { padding:0 20px 17px; color:var(--muted); font-size:13px; min-height:36px; } .report { margin-top:20px; padding:26px; display:none; } .report.show { display:block; } .report-grid { display:grid; grid-template-columns:1.25fr 1fr 1fr; gap:16px; } .metric { padding:18px; background:#f7f7fa; border-radius:12px; } .metric small { text-transform:uppercase; letter-spacing:.1em; font-weight:700; color:var(--muted); } .metric b { display:block; font-size:30px; letter-spacing:-.04em; margin:5px 0 2px; } .metric p { margin:0; color:var(--muted); font-size:12px; } .explain { border-top:1px solid var(--line); margin-top:25px; padding-top:22px; color:#535562; } .explain h3 { font-size:15px; color:var(--ink); margin:0 0 8px; } .explain p { margin:0 0 14px; } .formula { font-family:ui-monospace, monospace; color:#2c469e; background:var(--blue-soft); padding:8px 10px; border-radius:6px; display:inline-block; font-size:13px; }
+    @media(max-width:760px) { header { padding:20px; } main { padding:0 16px 38px; } .layout { grid-template-columns:1fr; } .intro { margin:25px 0; } .stage { min-height:430px; } .report-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header><div class="brand">fork<span>.</span></div><div class="tag">visual acuity exercise</div></header>
+  <main>
+    <section class="intro"><h1>How small can a <em>direction</em> become?</h1><p>A calibrated Tumbling E–inspired task. Keep a fixed viewing distance, identify the opening, and let the staircase find your smallest reliable feature.</p></section>
+    <section class="panel" style="margin:0 0 20px;max-width:820px">
+      <h2>Before you begin · accuracy checklist</h2>
+      <ol style="margin:0;padding-left:20px;color:#535562;display:grid;gap:7px">
+        <li>Set browser zoom to <b>100%</b> and use the display’s <b>native resolution</b>. Enter the screen’s physical diagonal and native pixel dimensions below; this is what converts pixels into millimetres.</li>
+        <li>Measure the viewing distance from your <b>eyes</b> to the screen (not from the chair), enter it, and keep your head at that distance throughout the task. A chair back or a small tape mark on the desk helps.</li>
+        <li>Use the correction you normally wear for screen viewing. Keep room lighting even, clean the screen, and avoid reflections, glare, dim mode, or a brightness setting that makes black look gray.</li>
+        <li>Test in a relaxed state and keep both eyes open for a binocular estimate. For an eye-by-eye comparison, cover the other eye with an opaque card—do not press on it—and run a separate task for each eye.</li>
+        <li>Choose the direction of the opening promptly, even when unsure. Do not lean forward, squint, or move closer; the task is designed to find the point where recognition is no longer reliable.</li>
+      </ol>
+      <p class="hint" style="margin-top:15px"><b>Important:</b> This is an educational screen task, not a clinical eye examination. Results are approximate and depend on accurate display specifications.</p>
+    </section>
+    <section class="layout">
+      <aside class="panel">
+        <h2>Calibration</h2>
+        <label for="diag">Display diagonal</label><div class="field"><input id="diag" type="number" value="24" min="3" step=".1"><span class="unit">inches</span></div>
+        <label for="resw">Native screen resolution</label><div class="field"><input id="resw" type="number" value="1920" min="200"><span class="unit">px wide</span></div>
+        <div class="field" style="margin-top:7px"><input id="resh" type="number" value="1080" min="200"><span class="unit">px high</span></div>
+        <label for="distance">Viewing distance</label><div class="field"><input id="distance" type="number" value="60" min="10" step="1"><span class="unit">cm</span></div>
+        <p class="hint">Use your display’s native resolution, then sit at the chosen distance. Browser zoom should be 100%.</p>
+        <button class="primary" id="start">Start 20-trial task</button>
+      </aside>
+      <section class="stage">
+        <div class="readout"><span id="trial">Ready to calibrate</span><span id="feature">Feature —</span></div>
+        <div class="target-zone"><canvas id="optotype" aria-label="Tumbling E target"></canvas></div>
+        <div class="controls">
+          <button class="answer" data-dir="3" disabled>Up <span class="key">↑</span></button><button class="answer" data-dir="0" disabled>Right <span class="key">→</span></button><button class="answer" data-dir="1" disabled>Down <span class="key">↓</span></button><button class="answer" data-dir="2" disabled>Left <span class="key">←</span></button>
+        </div>
+        <div class="status" id="status">Enter the physical display details, then begin.</div>
+      </section>
+    </section>
+    <section class="report" id="report">
+      <h2>Your approximate threshold</h2>
+      <div class="report-grid"><div class="metric"><small>Angular resolution</small><b id="arcmin">—</b><p>arc minutes per stroke / gap</p></div><div class="metric"><small>Smallest feature</small><b id="mm">—</b><p>at the displayed viewing distance</p></div><div class="metric"><small>Reliability</small><b id="accuracy">—</b><p>correct across the task</p></div></div>
+      <div class="explain"><h3>What this means for display design</h3><p id="meaning"></p><div class="formula" id="formula"></div><p style="margin-top:14px"><b>Design takeaway:</b> Text and symbols must be comfortably larger than a threshold feature because reading needs fast, repeated recognition—not just a correct forced choice. Safety warnings should add generous size, contrast, and redundancy; at longer distances their physical size must grow in direct proportion to distance to preserve the same visual angle.</p></div>
+    </section>
+  </main>
+<script>
+  const $=id=>document.getElementById(id), canvas=$('optotype'), ctx=canvas.getContext('2d');
+  let state={active:false,trial:0,correct:0,run:0,size:95,dir:0,history:[],ppi:0};
+  function calibration(){ const d=+$('diag').value,w=+$('resw').value,h=+$('resh').value; return Math.hypot(w,h)/d; }
+  function draw(size,dir){ const stroke=Math.max(2,Math.round(size/5)), side=stroke*5; const ratio=window.devicePixelRatio||1; canvas.width=(side+20)*ratio; canvas.height=(side+20)*ratio; canvas.style.width=(side+20)+'px'; canvas.style.height=(side+20)+'px'; ctx.scale(ratio,ratio); ctx.translate((side+20)/2,(side+20)/2); ctx.rotate(dir*Math.PI/2); ctx.lineWidth=stroke; ctx.lineCap='butt'; ctx.lineJoin='miter'; ctx.strokeStyle='#12131a'; ctx.beginPath(); ctx.moveTo(-side/2, -side/2); ctx.lineTo(side/2, -side/2); ctx.moveTo(-side/2,-side/2);ctx.lineTo(-side/2,side/2);ctx.lineTo(-side/2,0);ctx.lineTo(side/2,0);ctx.moveTo(-side/2,side/2);ctx.lineTo(side/2,side/2);ctx.stroke(); }
+  function next(){ state.dir=Math.floor(Math.random()*4); draw(state.size,state.dir); const mm=state.size/state.ppi*25.4/5; $('trial').textContent=`Trial ${state.trial+1} of 20`; $('feature').textContent=`Feature ${mm.toFixed(2)} mm`; }
+  function start(){ state={active:true,trial:0,correct:0,run:0,size:95,dir:0,history:[],ppi:calibration()}; $('report').classList.remove('show'); document.querySelectorAll('.answer').forEach(b=>b.disabled=false); $('status').textContent='Which way is the opening facing? Use buttons or arrow keys.'; next(); }
+  function answer(dir){ if(!state.active)return; const ok=dir===state.dir; state.history.push({size:state.size,ok}); state.correct+=ok; state.run=ok?state.run+1:0; if(ok && state.run>=2){state.size=Math.max(10,state.size*.82);state.run=0;} else if(!ok){state.size=Math.min(180,state.size*1.25);state.run=0;} state.trial++; if(state.trial>=20) finish(); else next(); }
+  function finish(){ state.active=false; document.querySelectorAll('.answer').forEach(b=>b.disabled=true); const reversals=[]; for(let i=1;i<state.history.length;i++) if(state.history[i].ok!==state.history[i-1].ok) reversals.push(state.history[i].size); const px=reversals.length?reversals.slice(-6).reduce((a,b)=>a+b,0)/Math.min(6,reversals.length):state.history.at(-1).size; const featureMM=px/state.ppi*25.4/5, distanceMM=+$('distance').value*10; const arc=Math.atan(featureMM/distanceMM)*180/Math.PI*60; const acc=state.correct/20*100; $('arcmin').textContent=arc.toFixed(1)+'′'; $('mm').textContent=featureMM.toFixed(2)+' mm'; $('accuracy').textContent=Math.round(acc)+'%'; $('formula').textContent=`angle = atan(${featureMM.toFixed(2)} mm ÷ ${distanceMM.toFixed(0)} mm) × 3437.75 = ${arc.toFixed(1)}′`; $('meaning').textContent=`At ${+$('distance').value} cm, your estimate is ${arc.toFixed(1)} arc minutes for one stroke or gap (t = d). For context, a 1 arc-minute feature is the conventional “20/20” visual-acuity reference; this is an informal screen-based estimate, not a clinical diagnosis.`; $('report').classList.add('show'); $('status').textContent='Task complete. Your estimate appears below.'; $('trial').textContent='Complete'; $('feature').textContent='Threshold estimated'; }
+  $('start').onclick=start; document.querySelectorAll('.answer').forEach(b=>b.onclick=()=>answer(+b.dataset.dir)); window.addEventListener('keydown',e=>{const map={ArrowUp:3,ArrowRight:0,ArrowDown:1,ArrowLeft:2};if(e.key in map){e.preventDefault();answer(map[e.key])}}); draw(95,0);
+</script>
+</body></html>
